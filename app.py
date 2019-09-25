@@ -29,9 +29,9 @@ def all_products():
     return JSONEncoder().encode(list(table.find()))
 
 
-@app.route('/{name}')
+@app.route('/{id}')
 def product(name):
-    data = table.find_one({'name': name})
+    data = table.find_one({'id': id})
     return JSONEncoder().encode(data)
 
 
@@ -39,13 +39,14 @@ def product(name):
 def create_product():
     request = app.current_request
     body = request.json_body
+    body['id'] = table.count() + 1
     table.insert_one(body)
     return {'message': 'Successful addition'}
 
 
-@app.route('/{name}/delete', methods=['POST'])
-def product_delete(name):
-    data = table.find_one({'name': name})
+@app.route('/{id}/delete', methods=['POST'])
+def product_delete(id):
+    data = table.find_one({'id': id})
     if data is not None:
         table.delete_one(data)
         return {'message': 'Successful Deleting'}
@@ -53,10 +54,10 @@ def product_delete(name):
         return {'message': 'Product not Found'}
 
 
-@app.route('/{name}/update', methods=['POST'])
-def product_update(name):
+@app.route('/{id}/update', methods=['POST'])
+def product_update(id):
     request = app.current_request
-    data = table.find_one({'name': name})
+    data = table.find_one({'id': id})
     body = request.json_body
     new_data = {'$set': body}
     table.update_one(data, new_data)
